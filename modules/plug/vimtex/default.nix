@@ -22,7 +22,7 @@
     };
   };
 
-  programs.nixvim.keymaps = lib.mkIf config.plugins.vimtex.enable [
+  programs.nixvim.keymaps =  [
     {
       mode = "n";
       key = "<leader>rs";
