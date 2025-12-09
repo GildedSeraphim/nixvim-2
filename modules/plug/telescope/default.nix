@@ -56,7 +56,7 @@
         silent = true;
       };
     }
-    (lib.mkIf programs.nixvim.plugins.telescope.extensions.undo.enable {
+    (lib.mkIf config.programs.nixvim.plugins.telescope.extensions.undo.enable {
       mode = "n";
       key = "<leader>fu";
       action = "<cmd>Telescope undo<CR>";
@@ -64,7 +64,7 @@
         desc = "List undo history";
       };
     })
-    (lib.mkIf programs.nixvim.plugins.telescope.extensions.live-grep-args.enable {
+    (lib.mkIf config.programs.nixvim.plugins.telescope.extensions.live-grep-args.enable {
       mode = "n";
       key = "<leader>fw";
       action = "<cmd>Telescope live_grep_args<CR>";
