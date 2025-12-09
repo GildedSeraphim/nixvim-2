@@ -1,13 +1,37 @@
 
 { config, lib, pkgs, ... }:
 
+let
+  # helper functions from lib
+  optional = lib.lists.optional;
+  foldlAttrs = lib.attrsets.foldlAttrs;
+
+  # path to your plugins folder
+  byName = ./plug;
+
+  # read the directory and only import subdirs
+  pluginImports =
+    foldlAttrs
+      (prev: name: type:
+        prev ++ optional (type == "directory") [ byName + "/" + name ]
+      )
+      [ ]
+      (builtins.readDir byName);
+in
 {
-  programs.nixvim = {
-    enable = true;
+  # Home Manager imports
+  imports =
+    pluginImports
+    ++ [
+      ./autocommands.nix
+      ./keys.nix
+      ./sets.nix
+    ];
 
-    plugins.lualine.enable = true;
-    plugins.treesitter.enable = true;
+  # Enable NixVim
+  programs.nixvim.enable = true;
 
-    # Add any config you want here...
-  };
+  # Optional: any other global settings you had
+  nixpkgs.overlays = lib.attrValues self.overlays;
+  nixpkgs.config.allowUnfree = true;
 }
