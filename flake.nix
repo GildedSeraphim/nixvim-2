@@ -23,7 +23,7 @@
         {
           imports = [
             nixvim.homeManagerModules.nixvim # import the official NixVim module
-            ./modules/nixvim.nix # your config
+            ./modules/default.nix # your config
           ];
         };
     };
