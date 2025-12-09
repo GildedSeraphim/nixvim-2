@@ -9,12 +9,12 @@
   ...
 }:
 {
-  extraPackages = with pkgs; [
+  programs.nixvim.extraPackages = with pkgs; [
     ripgrep
     fd
   ];
 
-  keymaps = lib.mkIf config.plugins.telescope.enable [
+  programs.nixvim.keymaps = lib.mkIf config.plugins.telescope.enable [
     {
       mode = "n";
       key = "<leader>fF";
@@ -74,7 +74,7 @@
     })
   ];
 
-  plugins.telescope = {
+  programs.nixvim.plugins.telescope = {
     enable = true;
 
     extensions = {
