@@ -14,7 +14,7 @@
     fd
   ];
 
-  programs.nixvim.keymaps = lib.mkIf programs.nixvim.plugins.telescope.enable [
+  programs.nixvim.keymaps = lib.mkIf config.programs.nixvim.plugins.telescope.enable [
     {
       mode = "n";
       key = "<leader>fF";
