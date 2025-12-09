@@ -20,8 +20,8 @@ in
     ) [ ] (readDir by-name))
     ++ [
       ./autocommands.nix
-      #./keys.nix
-      #./sets.nix
+      ./keys.nix
+      ./sets.nix
     ];
   nixpkgs = {
     overlays = lib.attrValues self.overlays;
