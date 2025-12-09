@@ -1,37 +1,31 @@
 
-{ config, lib, pkgs, ... }:
-
+{
+  lib,
+  self,
+  config,
+  pkgs,
+  ...
+}:
 let
-  # helper functions from lib
-  optional = lib.lists.optional;
-  foldlAttrs = lib.attrsets.foldlAttrs;
-
-  # path to your plugins folder
-  byName = ./plug;
-
-  # read the directory and only import subdirs
-  pluginImports =
-    foldlAttrs
-      (prev: name: type:
-        prev ++ optional (type == "directory") [ byName + "/" + name ]
-      )
-      [ ]
-      (builtins.readDir byName);
+  inherit (builtins) readDir;
+  inherit (lib.attrsets) foldlAttrs;
+  inherit (lib.lists) optional;
+  by-name = ./plug;
 in
 {
-  # Home Manager imports
   imports =
-    pluginImports
+    (foldlAttrs (
+      prev: name: type:
+      prev ++ optional (type == "directory") (by-name + "/${name}")
+    ) [ ] (readDir by-name))
     ++ [
       ./autocommands.nix
       ./keys.nix
       ./sets.nix
     ];
-
-  # Enable NixVim
+  nixpkgs = {
+    overlays = lib.attrValues self.overlays;
+    config.allowUnfree = true;
+  };
   programs.nixvim.enable = true;
-
-  # Optional: any other global settings you had
-  nixpkgs.overlays = lib.attrValues self.overlays;
-  nixpkgs.config.allowUnfree = true;
 }
