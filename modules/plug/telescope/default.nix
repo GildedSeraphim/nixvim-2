@@ -14,7 +14,7 @@
     fd
   ];
 
-  programs.nixvim.keymaps = [
+  programs.nixvim.keymaps = lib.mkIf programs.nixvim.plugins.telescope.enable [
     {
       mode = "n";
       key = "<leader>fF";
@@ -56,7 +56,7 @@
         silent = true;
       };
     }
-    (lib.mkIf config.plugins.telescope.extensions.undo.enable {
+    (lib.mkIf programs.nixvim.plugins.telescope.extensions.undo.enable {
       mode = "n";
       key = "<leader>fu";
       action = "<cmd>Telescope undo<CR>";
@@ -64,7 +64,7 @@
         desc = "List undo history";
       };
     })
-    (lib.mkIf config.plugins.telescope.extensions.live-grep-args.enable {
+    (lib.mkIf programs.nixvim.plugins.telescope.extensions.live-grep-args.enable {
       mode = "n";
       key = "<leader>fw";
       action = "<cmd>Telescope live_grep_args<CR>";
