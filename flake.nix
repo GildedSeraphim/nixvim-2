@@ -1,12 +1,30 @@
 {
-  description = "Standalone NixVim config as a Home Manager module";
+  description = "My standalone NixVim config as a Home Manager module";
 
-  outputs = { self, nixpkgs, ... }: {
-    # Expose the module in a clean way
-    homeManagerModule = ./modules/nixvim.nix;
-
-    # Optional: expose it through `homeManagerModules.default`
-    homeManagerModules.default = ./modules/nixvim.nix;
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixvim.url = "github:nix-community/nixvim";
   };
-}
 
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixvim,
+      ...
+    }:
+    let
+      system = "x86_64-linux"; # adjust if needed
+      pkgs = import nixpkgs { inherit system; };
+    in
+    {
+      homeManagerModule =
+        { config, pkgs, ... }:
+        {
+          imports = [
+            nixvim.homeManagerModules.nixvim # import the official NixVim module
+            ./modules/nixvim.nix # your config
+          ];
+        };
+    };
+}
