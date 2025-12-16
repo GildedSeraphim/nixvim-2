@@ -121,48 +121,58 @@
       };
     };
   };
+
   programs.nixvim.extraConfigLua = ''
-      local _border = "rounded"
+    ---------------------------------------------------------------------------
+    -- UI / borders
+    ---------------------------------------------------------------------------
+    local _border = "rounded"
 
-      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-        vim.lsp.handlers.hover, {
-          border = _border
-        }
-      )
+    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+      vim.lsp.handlers.hover,
+      { border = _border }
+    )
 
-      vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-        vim.lsp.handlers.signature_help, {
-          border = _border
-        }
-      )
+    vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+      vim.lsp.handlers.signature_help,
+      { border = _border }
+    )
 
-      vim.diagnostic.config{
-        float={border=_border}
-      };
+    vim.diagnostic.config({
+      float = { border = _border },
+    })
 
-      require('lspconfig.ui.windows').default_options = {
-        border = _border
-      }
+    -- still provided by nvim-lspconfig (not deprecated)
+    require("lspconfig.ui.windows").default_options = {
+      border = _border,
+    }
 
-    local lspconfig = require('lspconfig')
-    local util = require('lspconfig.util')
+    ---------------------------------------------------------------------------
+    -- ZLS (use the one from $PATH / nix flake devShell)
+    ---------------------------------------------------------------------------
+    local util = require("lspconfig.util")
 
-    -- Only try to start ZLS if it's in $PATH
     if vim.fn.executable("zls") == 1 then
-      lspconfig.zls.setup {
-        cmd = { "zls" },  -- use the one from PATH (your devShell)
+      vim.lsp.config("zls", {
+        cmd = { "zls" },
         root_dir = util.root_pattern("build.zig", ".git"),
-      }
+      })
+
+      vim.lsp.enable("zls")
     end
 
-      config = function(_, opts)
-        local lspconfig = require('lspconfig')
-        for server, config in pairs(opts.servers) do
-          -- passing config.capabilities to blink.cmp merges with the capabilities in your
-          -- `opts[server].capabilities, if you've defined it
-          config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
-          lspconfig[server].setup(config)
-        end
-      end;
+    ---------------------------------------------------------------------------
+    -- Generic server setup (replaces lspconfig[server].setup)
+    ---------------------------------------------------------------------------
+    if type(vim.g.nixvim_lsp_servers) == "table" then
+      for server, config in pairs(vim.g.nixvim_lsp_servers) do
+        config.capabilities =
+          require("blink.cmp").get_lsp_capabilities(config.capabilities)
+
+        vim.lsp.config(server, config)
+        vim.lsp.enable(server)
+      end
+    end
   '';
+
 }
