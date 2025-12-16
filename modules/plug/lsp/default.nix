@@ -142,19 +142,20 @@
       float = { border = _border },
     })
 
-    -- still provided by nvim-lspconfig (not deprecated)
     require("lspconfig.ui.windows").default_options = {
       border = _border,
     }
 
     ---------------------------------------------------------------------------
-    -- ZLS (use the one from $PATH / nix flake devShell)
+    -- ZLS (IMPORTANT: explicitly load server definition)
     ---------------------------------------------------------------------------
+    require("lspconfig.zls")  -- <-- THIS is what you were missing
+
     local util = require("lspconfig.util")
 
     if vim.fn.executable("zls") == 1 then
       vim.lsp.config("zls", {
-        cmd = { "zls" },
+        cmd = { "zls" }, -- from $PATH (nix flake / devShell)
         root_dir = util.root_pattern("build.zig", ".git"),
       })
 
@@ -162,10 +163,13 @@
     end
 
     ---------------------------------------------------------------------------
-    -- Generic server setup (replaces lspconfig[server].setup)
+    -- Generic server setup (nixvim-style)
     ---------------------------------------------------------------------------
     if type(vim.g.nixvim_lsp_servers) == "table" then
       for server, config in pairs(vim.g.nixvim_lsp_servers) do
+        -- ensure server definition is loaded
+        pcall(require, "lspconfig." .. server)
+
         config.capabilities =
           require("blink.cmp").get_lsp_capabilities(config.capabilities)
 
