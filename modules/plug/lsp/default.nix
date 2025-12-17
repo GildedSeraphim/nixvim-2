@@ -122,61 +122,40 @@
     };
   };
 
-  programs.nixvim.extraConfigLua = ''
-    ---------------------------------------------------------------------------
-    -- UI / borders
-    ---------------------------------------------------------------------------
-    local _border = "rounded"
+  
+programs.nixvim.extraConfigLua = ''
+  ---------------------------------------------------------------------------
+  -- LSP UI (borders, diagnostics)
+  ---------------------------------------------------------------------------
+  local border = "rounded"
 
-    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-      vim.lsp.handlers.hover,
-      { border = _border }
-    )
+  vim.lsp.handlers["textDocument/hover"] =
+    vim.lsp.with(vim.lsp.handlers.hover, { border = border })
 
-    vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-      vim.lsp.handlers.signature_help,
-      { border = _border }
-    )
+  vim.lsp.handlers["textDocument/signatureHelp"] =
+    vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
 
-    vim.diagnostic.config({
-      float = { border = _border },
+  vim.diagnostic.config({
+    float = { border = border },
+  })
+
+  ---------------------------------------------------------------------------
+  -- ZLS (custom binary from nix flake / devShell)
+  -- No nvim-lspconfig server definition required
+  ---------------------------------------------------------------------------
+  if vim.fn.executable("zls") == 1 then
+    vim.lsp.config("zls", {
+      name = "zls",
+      cmd = { "zls" },          -- resolved via $PATH (flake/devShell)
+      filetypes = { "zig" },
+      root_dir = function(fname)
+        return vim.fs.root(fname, { "build.zig", ".git" })
+      end,
+      single_file_support = true,
     })
 
-    require("lspconfig.ui.windows").default_options = {
-      border = _border,
-    }
-
-    ---------------------------------------------------------------------------
-    -- ZLS (IMPORTANT: explicitly load server definition)
-    ---------------------------------------------------------------------------
-    require("lspconfig.zls")  -- <-- THIS is what you were missing
-
-    local util = require("lspconfig.util")
-
-    if vim.fn.executable("zls") == 1 then
-      vim.lsp.config("zls", {
-        cmd = { "zls" }, -- from $PATH (nix flake / devShell)
-        root_dir = util.root_pattern("build.zig", ".git"),
-      })
-
-      vim.lsp.enable("zls")
-    end
-
-    ---------------------------------------------------------------------------
-    -- Generic server setup (nixvim-style)
-    ---------------------------------------------------------------------------
-    if type(vim.g.nixvim_lsp_servers) == "table" then
-      for server, config in pairs(vim.g.nixvim_lsp_servers) do
-        -- ensure server definition is loaded
-        pcall(require, "lspconfig." .. server)
-
-        config.capabilities =
-          require("blink.cmp").get_lsp_capabilities(config.capabilities)
-
-        vim.lsp.config(server, config)
-        vim.lsp.enable(server)
-      end
-    end
-  '';
+    vim.lsp.enable("zls")
+  end
+'';
 
 }
