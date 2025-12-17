@@ -122,31 +122,32 @@
     };
   };
 
-  
-programs.nixvim.extraConfigLua = ''
-  ---------------------------------------------------------------------------
-  -- LSP UI (borders, diagnostics)
-  ---------------------------------------------------------------------------
-  local border = "rounded"
+  programs.nixvim.extraConfigLua = ''
+    ---------------------------------------------------------------------------
+    -- LSP UI
+    ---------------------------------------------------------------------------
+    local border = "rounded"
 
-  vim.lsp.handlers["textDocument/hover"] =
-    vim.lsp.with(vim.lsp.handlers.hover, { border = border })
+    vim.lsp.handlers["textDocument/hover"] =
+      vim.lsp.with(vim.lsp.handlers.hover, { border = border })
 
-  vim.lsp.handlers["textDocument/signatureHelp"] =
-    vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
+    vim.lsp.handlers["textDocument/signatureHelp"] =
+      vim.lsp.with(vim.lsp.handlers.signature_help, { border = border })
 
-  vim.diagnostic.config({
-    float = { border = border },
-  })
+    vim.diagnostic.config({
+      float = { border = border },
+    })
 
-  ---------------------------------------------------------------------------
-  -- ZLS (custom binary from nix flake / devShell)
-  -- No nvim-lspconfig server definition required
-  ---------------------------------------------------------------------------
-  if vim.fn.executable("zls") == 1 then
+    ---------------------------------------------------------------------------
+    -- ZLS (custom binary from nix flake / devShell)
+    ---------------------------------------------------------------------------
+    if vim.fn.executable("zls") ~= 1 then
+      return
+    end
+
+    -- Define the server
     vim.lsp.config("zls", {
-      name = "zls",
-      cmd = { "zls" },          -- resolved via $PATH (flake/devShell)
+      cmd = { "zls" },
       filetypes = { "zig" },
       root_dir = function(fname)
         return vim.fs.root(fname, { "build.zig", ".git" })
@@ -154,8 +155,17 @@ programs.nixvim.extraConfigLua = ''
       single_file_support = true,
     })
 
-    vim.lsp.enable("zls")
-  end
-'';
+    -- Explicitly start ZLS for Zig buffers
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "zig",
+      callback = function(args)
+        vim.lsp.start({
+          name = "zls",
+          cmd = { "zls" },
+          root_dir = vim.fs.root(args.buf, { "build.zig", ".git" }),
+        })
+      end,
+    })
+  '';
 
 }
