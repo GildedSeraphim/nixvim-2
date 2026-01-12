@@ -56,6 +56,9 @@
         texlab = {
           enable = true;
         };
+        slangd = {
+          enable = true;
+        };
         yamlls = {
           enable = true;
           settings = {
