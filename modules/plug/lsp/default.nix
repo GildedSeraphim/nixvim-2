@@ -58,6 +58,7 @@
         };
         slangd = {
           enable = true;
+          package = pkgs.shader-slang;
         };
         yamlls = {
           enable = true;
