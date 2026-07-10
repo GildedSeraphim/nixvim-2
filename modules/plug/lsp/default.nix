@@ -26,7 +26,7 @@
           settings =
             let
               flake = ''(builtins.getFlake "github:GildedSeraphim/.dotfiles)""'';
-              flakeNixvim = ''(builtins.getFlake "github:GildedSeraphim/nixvim)""'';
+              flakeNixvim = ''(builtins.getFlake "github:GildedSeraphim/nixvim-2)""'';
             in
             {
               nixpkgs = {
