@@ -21,6 +21,9 @@
         clangd = {
           enable = true;
         };
+        ols = {
+          enable = true;
+        };
         nixd = {
           enable = true;
           settings =
