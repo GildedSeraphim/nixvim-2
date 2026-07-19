@@ -17,6 +17,7 @@
         xml
         yaml
         zig
+        odin
       ];
       settings = {
         auto_install = false;
