@@ -35,7 +35,7 @@
       };
     };
 
-  programs.extraPackages = with pkgs; [
+  programs.nixvim.extraPackages = with pkgs; [
     clang-tools    # clang-format
     alejandra
     rustfmt
