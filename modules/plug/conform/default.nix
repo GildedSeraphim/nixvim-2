@@ -35,7 +35,7 @@
       };
     };
 
-  extraPackages = with pkgs; [
+  programs.extraPackages = with pkgs; [
     clang-tools    # clang-format
     alejandra
     rustfmt
